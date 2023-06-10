@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="cielo" width="800" height="600"></canvas>
+
+<script>
+const Pi2 = Math.PI*2;
+const G = 6.6743E-11;
+const alto = 600;
+const ancho = 800;
+let escala = alto/(2*4515.0E+9);
+let ancho2 = ancho/2;
+let alto2 = alto/2;
+let offx = ancho/2;
+let offy = alto/2;
+let relativo = -1;
+var losPlanetas = [];
+losPlanetas.push({
+    nombre: "Sol",
+    m: 1.9885E+30,
+    r: 696342E+3,
+    t: 27*Dia + 6*Hora +36*Minuto,
+    color: "#FFFFFF",
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Mercurio",
+    m: 3.3011E+23,
+    r: 2439.7E+3,
+    t: 58.7*Dia,
+    color: "#FF0000",
+    x: 57.9E+9,
+    y: 0,
+    vx: 0,
+    vy: 47.4E+3,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Venus",
+    m: 4.8675E+24,
+    r: 6051.8E+3,
+    t: -243*Dia,
+    color: "#00FF00",
+    x: 0,
+    y: 108.2E+9,
+    vx: -35.0E+3,
+    vy: 0,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Tierra",
+    m: 5.97217E+24,
+    r: 6371E+3,
+    t: Dia,
+    color: "#0000FF",
+    x: -149.6E+9,
+    y: 0,
+    vx: 0,
+    vy: -29.8E+3,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Luna",
+    m: 7.342E+22,
+    r: 1737.1E+3,
+    t: 27*Dia + 7*Hora + 43.7*Minuto
+    color: "#FFFFFF",
+    x: -149.6E+9 -0.384E+9,
+    y: 0,
+    vx: 0,
+    vy: -29.8E+3 -1.0E+3,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Marte",
+    m: 6.4171E+23,
+    r: 3389.5E+3,
+    t: 1.03*Dia,
+    color: "#FFFF00",
+    x: 0,
+    y: -228.0E+9,
+    vx: 24.1E+3,
+    vy: 0,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Jupiter",
+    m: 1.8982E+27,
+    r: 71492E+3,
+    t: 9*Hora +55.5*Minuto,
+    color: "#FF00FF",
+    x: 778.5E+9,
+    y: 0,
+    vx: 0,
+    vy: -13.1E+3,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Saturno",
+    m: 5.6834E+26,
+    r: 58232E+3,
+    t: 10*Hora + 33*Minuto,
+    color: "#00FFFF",
+    x: 0,
+    y: 1432.0E+9,
+    vx: -9.7E+3,
+    vy: 0,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Urano",
+    m: 8.6810E+25,
+    r: 25362E+3,
+    t: -17*Hora + 14*Minuto,
+    color: "#FF0000",
+    x: -2867.0E+9,
+    y: 0,
+    vx: 0,
+    vy: -6.8E+3,
+    fx: 0,
+    fy: 0
+});
+losPlanetas.push({
+    nombre: "Neptuno",
+    m: 1.02413E+26,
+    r: 24622E+3,
+    t: 16*Hora + 6*Minuto,
+    color: "#00FF00",
+    x: 0,
+    y: -4515.0E+9,
+    vx: 5.4E+3,
+    vy: 0,
+    fx: 0,
+    fy: 0
+});
+
+var ctx = document.getElementById("cielo").getContext("2d");
+ctx.fillStyle = "#000000";
+ctx.fillRect(0, 0, ancho, alto);
+
+function unPaso(){
+    let len = losPlanetas.length;
+    for(let i=0;i<len-1;i++){
+        let planetaI = losPlanetas[i];
+        for(let j=i+1;j<len;j++){
+            let planetaJ = losPlanetas[j];
+            let dx = planetaI.x - planetaJ.x;
+            let dy = planetaI.y - planetaJ.y;
+            let d2 = dx*dx + dy*dy;
+            let d = Math.sqrt(d2);
+            let f = G*(planetaI.m)*(planetaJ.m)/d2;
+            let fx = f*dx/d;
+            let fy = f*dy/d;
+            planetaI.fx -= fx;
+            planetaI.fy -= fy;
+            planetaJ.fx += fx;
+            planetaJ.fy += fy;
+        }
+    }
+    for(let i=0;i<len;i++){
+        let unPlaneta = losPlanetas[i];
+        let ax = unPlaneta.fx/unPlaneta.m;
+        let ay = unPlaneta.fy/unPlaneta.m;
+        unPlaneta.x += unPlaneta.vx + ax*0.5;
+        unPlaneta.y += unPlaneta.vy + ay*0.5;
+        unPlaneta.vx += ax;
+        unPlaneta.vy += ay;
+    }
+    for(let i=0;i<len;i++){
+        losPlanetas[i].fx = 0;
+        losPlanetas[i].fy = 0;
+    }
+}
+function printPlanetas(){
+    let len = losPlanetas.length;
+    if(relativo>=0){
+        offx = -losPlanetas[relativo].x*escala + ancho/2;
+        offy = -losPlanetas[relativo].y*escala + alto/2
+    }
+    for(let i=0;i<len;i++){
+        let elPlaneta = losPlanetas[i];
+        ctx.strokeStyle = elPlaneta.color;
+        
+        let radio = elPlaneta.r*escala;
+        if(radio < 1){
+            radio = 1;
+        }
+        ctx.beginPath();
+        ctx.arc(elPlaneta.x*escala+offx,elPlaneta.y*escala+offy,radio,0,Pi2);
+        ctx.stroke();
+    }
+}
+function simular(len,pasos){
+    for(let i=0;i<len;i++){
+        for(let j=0;j<pasos;j++){
+            unPaso();
+        }
+        printPlanetas();
+    }
+}
+setInterval(function(){
+    simular(60,60);
+},10);
+
+document.onkeydown = function(evento){
+    if(evento.code.includes("Key")){
+        switch(evento.code){
+            case "KeyP":
+            escala *=2;
+            break;
+        case "KeyM":
+            escala /=2;
+            break;
+        case "KeyA":
+            relativo = -1;
+            offx -= 50;
+            break;
+        case "KeyD":
+            relativo = -1;
+            offx += 50;
+            break;
+        case "KeyW":
+            relativo = -1;
+            offy -= 50;
+            break;
+        case "KeyS":
+            relativo = -1;
+            offy += 50;
+            break;
+        }
+    } else if(evento.code.includes("Digit")){
+        let numero = evento.code.replace("Digit","");
+        relativo = parseInt(numero);
+    }
+    ctx.fillRect(0, 0, ancho, alto);
+};
+</script>
+</body>
+</html>
